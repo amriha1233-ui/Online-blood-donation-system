@@ -36,9 +36,10 @@ COPY --from=builder /root/.local /home/django/.local
 # Copy application code
 COPY --chown=django:django . .
 
-# Create necessary directories
+# Create necessary directories and make entrypoint executable
 RUN mkdir -p /app/logs /app/media /app/staticfiles && \
-    chown -R django:django /app
+    chown -R django:django /app && \
+    chmod +x /app/entrypoint.sh
 
 # Set environment variables
 ENV PATH=/home/django/.local/bin:$PATH \
@@ -56,15 +57,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health/ || exit 1
 
-# Run gunicorn
-CMD ["gunicorn", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
-     "--worker-class", "sync", \
-     "--worker-tmp-dir", "/dev/shm", \
-     "--max-requests", "1000", \
-     "--max-requests-jitter", "50", \
-     "--timeout", "60", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-", \
-     "obdms.wsgi:application"]
+# Run entrypoint script (handles migrations, collectstatic, and gunicorn)
+ENTRYPOINT ["/app/entrypoint.sh"]
