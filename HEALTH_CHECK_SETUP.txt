@@ -1,0 +1,11 @@
+"""
+URL configuration for health check endpoints
+Add this to your main obdms/urls.py
+"""
+
+# In obdms/urls.py, add these imports:
+from accounts.health_check import health_check, readiness_check
+
+# In the urlpatterns list, add:
+path("health/", health_check, name="health-check"),
+path("ready/", readiness_check, name="readiness-check"),

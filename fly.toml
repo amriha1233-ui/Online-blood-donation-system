@@ -1,0 +1,27 @@
+app = "obdms"
+primary_region = "sin"  # Singapore - change to your region
+console_command = "/app/bin/python manage.py shell"
+
+[build]
+builder = "dockerfile"
+
+[env]
+DJANGO_SETTINGS_MODULE = "obdms.settings"
+PYTHONUNBUFFERED = "1"
+
+[[services]]
+internal_port = 8000
+processes = ["app"]
+protocol = "tcp"
+auto_rollback = true
+auto_stop_machines = true
+min_machines_running = 1
+processes = ["app"]
+
+[[services.http_checks]]
+grace_period = "5s"
+interval = "15s"
+method = "GET"
+path = "/health/"
+protocol = "http"
+timeout = "5s"

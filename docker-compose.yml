@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: obdms_db
+    environment:
+      POSTGRES_DB: obdms_db
+      POSTGRES_USER: obdms_user
+      POSTGRES_PASSWORD: obdms_password_dev_only
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U obdms_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - obdms_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: obdms_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - obdms_network
+
+  # Django Application
+  web:
+    build: .
+    container_name: obdms_web
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn obdms.wsgi:application --bind 0.0.0.0:8000"
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: "django-insecure-dev-key-change-in-production"
+      DATABASE_URL: "postgresql://obdms_user:obdms_password_dev_only@db:5432/obdms_db"
+      REDIS_URL: "redis://redis:6379/0"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,web"
+      EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
+      EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - obdms_network
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: obdms_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    depends_on:
+      - web
+    networks:
+      - obdms_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
+
+networks:
+  obdms_network:
+    driver: bridge

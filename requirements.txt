@@ -1,0 +1,35 @@
+# Django
+Django>=5.0,<6.0
+
+# WSGI Server
+gunicorn==22.0.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Image Processing
+Pillow==10.2.0
+
+# Database
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+dj-database-url==2.1.0  # Database URL parsing
+
+# Caching
+django-redis==5.4.0
+redis==5.0.1
+
+# CORS
+django-cors-headers==4.3.1
+
+# Static Files
+whitenoise==6.6.0  # Efficient static file serving
+
+# Email
+django-anymail==10.1  # Email tracking and management
+
+# Security & Monitoring
+sentry-sdk==1.39.1  # Error tracking
+
+# Utilities
+requests==2.31.0
+python-dateutil==2.8.2
