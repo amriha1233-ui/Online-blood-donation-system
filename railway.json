@@ -1,25 +1,34 @@
-[build]
-packages = ["gunicorn", "django", "psycopg2-binary"]
-
-[[redirects]]
-from = "/api/*"
-to = ":splat"
-status = 200
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
-
-[dev]
-command = "python manage.py runserver 0.0.0.0:8000"
-port = 8000
-publish = "staticfiles"
-
-[env]
-DJANGO_SETTINGS_MODULE = "obdms.settings"
-PYTHONUNBUFFERED = "1"
-
-[[env.production.vars]]
-DEBUG = "False"
-ALLOWED_HOSTS = "yourdomain.netlify.app"
+{
+  "build": {
+    "packages": ["gunicorn", "django", "psycopg2-binary"]
+  },
+  "redirects": [
+    {
+      "from": "/api/*",
+      "to": ":splat",
+      "status": 200
+    },
+    {
+      "from": "/*",
+      "to": "/index.html",
+      "status": 200
+    }
+  ],
+  "dev": {
+    "command": "python manage.py runserver 0.0.0.0:8000",
+    "port": 8000,
+    "publish": "staticfiles"
+  },
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "obdms.settings",
+    "PYTHONUNBUFFERED": "1",
+    "production": {
+      "vars": [
+        {
+          "DEBUG": "False",
+          "ALLOWED_HOSTS": "yourdomain.netlify.app"
+        }
+      ]
+    }
+  }
+}
