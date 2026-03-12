@@ -28,13 +28,13 @@ if SECRET_KEY == "warning-no-secret-key-set-generate-one-in-production":
 # Allowed hosts - set from environment
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1"
+    "online-blood-donation-system.onrender.com,localhost,127.0.0.1,.onrender.com"
 ).split(",")
 
 # CORS settings
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS",
-    "http://localhost"
+    "https://online-blood-donation-system.onrender.com,http://localhost"
 ).split(",")
 
 # ============================================================================
