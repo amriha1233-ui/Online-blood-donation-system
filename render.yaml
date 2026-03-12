@@ -8,7 +8,7 @@ start_command = "gunicorn obdms.wsgi:application --bind 0.0.0.0:8000"
 
 [[env]]
 name = "DJANGO_SETTINGS_MODULE"
-value = "obdms.settings"
+value = "obdms.settings_production"
 
 [[env]]
 name = "PYTHONUNBUFFERED"
@@ -18,4 +18,8 @@ value = "1"
 builder = "heroku.buildpacks"
 buildpacks = [
   "heroku/python",
+]
+commands = [
+  "pip install -r requirements.txt",
+  "python manage.py collectstatic --noinput"
 ]
