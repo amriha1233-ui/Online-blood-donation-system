@@ -36,7 +36,7 @@ COPY --from=builder /root/.local /home/django/.local
 # Copy application code
 COPY --chown=django:django . .
 
-# Create necessary directories and make entrypoint executable
+# Create necessary directories
 RUN mkdir -p /app/logs /app/media /app/staticfiles && \
     chown -R django:django /app && \
     chmod +x /app/entrypoint.sh
@@ -45,7 +45,12 @@ RUN mkdir -p /app/logs /app/media /app/staticfiles && \
 ENV PATH=/home/django/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8000
+    PORT=8000 \
+    DJANGO_SETTINGS_MODULE=obdms.settings_production
+
+# Collect static files BEFORE switching to non-root user
+# This ensures staticfiles are owned correctly
+RUN python manage.py collectstatic --noinput --clear --verbosity=0
 
 # Use non-root user
 USER django
@@ -57,5 +62,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health/ || exit 1
 
-# Run entrypoint script (handles migrations, collectstatic, and gunicorn)
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Run entrypoint script (handles migrations and gunicorn)
+ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"]
