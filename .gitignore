@@ -34,8 +34,10 @@ MANIFEST
 # Django
 *.sqlite3
 db.sqlite3
-/staticfiles/
-/media/
+# Note: staticfiles/ and media/ are NOT ignored - they need to be deployed
+# If using cloud storage, uncomment these lines:
+# /staticfiles/
+# /media/
 local_settings.py
 
 # IDE
